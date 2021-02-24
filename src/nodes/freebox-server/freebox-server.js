@@ -9,7 +9,7 @@ const { EventEmitter } = require('events');
 const APPLICATION = {
   appId: 'node-red-contrib-freebox',
   appName: 'node-red Freebox API',
-  appVersion: '0.0.1',
+  appVersion: '0.0.2',
   deviceName: 'Node-red'
 };
 
@@ -212,11 +212,12 @@ module.exports = function (RED) {
     /**
      * 
      * @param {string} url 
+     * @param {string | undefined} method 
      * @param {object | undefined} data 
      */
-    apiCall(url, data) {
-      RED.log.info(`${data ? 'POST' : 'GET'} ${url}`);
-      return this.refreshSession().then(() => this._internalApiCall(url, data, { 'X-Fbx-App-Auth': this.session.token }));
+    apiCall(url, method, data) {
+      RED.log.info(`${data ? (_method ? _method : 'POST') : 'GET'} ${url}`);
+      return this.refreshSession().then(() => this._internalApiCall(url, method, data, { 'X-Fbx-App-Auth': this.session.token }));
     }
 
     /**
@@ -224,15 +225,16 @@ module.exports = function (RED) {
      * @private
      * 
      * @param {string} url 
+     * @param {string | undefined} _method 
      * @param {object | undefined} data 
      * @param {object} headers 
      */
-    _internalApiCall(url, data = undefined, headers = {}) {
+    _internalApiCall(url, _method = undefined, data = undefined, headers = {}) {
       const { freebox } = this;
       const options = {
         url: `${freebox.baseUrl}${url}`,
         data,
-        method: data ? 'POST' : 'GET',
+        method: data ? (_method ? _method : 'POST') : 'GET',
         headers
       };
 
